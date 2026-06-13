@@ -1,13 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spreetail Shared Expenses</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Spreetail{% endblock %} — Shared Expenses</title>
+  <meta name="description" content="Spreetail — track and split shared expenses with your group." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body>
+
+  {% if current_user %}
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">Spreet<span>ail</span></a>
+    <div class="navbar-right">
+      <span class="navbar-email">{{ current_user.email }}</span>
+      <a href="/import" class="btn btn-ghost btn-sm">Import CSV</a>
+      <form method="post" action="/logout" style="display:inline">
+        <button type="submit" class="btn btn-ghost btn-sm">Sign out</button>
+      </form>
+    </div>
+  </nav>
+  {% endif %}
+
+  {% set flash_msg = request.cookies.get('flash_message', '') %}
+  {% set flash_cat = request.cookies.get('flash_category', 'success') %}
+  {% if flash_msg %}
+  <div class="flash flash-{{ flash_cat }}" id="flash-banner">
+    {{ flash_msg }}
+  </div>
+  <script>
+    setTimeout(() => {
+      const b = document.getElementById('flash-banner');
+      if (b) b.style.display = 'none';
+      // Clear cookies
+      document.cookie = 'flash_message=; max-age=0; path=/';
+      document.cookie = 'flash_category=; max-age=0; path=/';
+    }, 4000);
+  </script>
+  {% endif %}
+
+  <main>
     {% block content %}{% endblock %}
+  </main>
+
 </body>
 </html>
