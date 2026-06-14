@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Review Import Anomalies{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:var(--space-md)">
+    <a href="/import/{{ session.id }}/report" class="btn btn-ghost btn-sm">← Back to Import Report</a>
+  </div>
+
+  <h1 style="margin-bottom:var(--space-sm)">Review Pending Anomalies</h1>
+  <p style="margin-bottom:var(--space-lg)">{{ session.filename }} · Please review the flagged rows below to either approve (import) or reject (ignore) them.</p>
+
+  {% if pending %}
+  <div style="display:flex;flex-direction:column;gap:var(--space-md)">
+    {% for a in pending %}
+    <div class="card" style="border-left: 4px solid var(--warning)">
+      <div class="card-header" style="margin-bottom:var(--space-sm)">
+        <h3 style="display:flex;align-items:center;gap:var(--space-sm)">
+          <span>Row {{ a.row_number }}</span>
+          <span class="anomaly-{{ a.anomaly_type }}" style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em">[{{ a.anomaly_type }}]</span>
+        </h3>
+        <div style="display:flex;gap:var(--space-sm)">
+          <form method="post" action="/import/{{ session.id }}/approve/{{ a.id }}">
+            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+          </form>
+          <form method="post" action="/import/{{ session.id }}/reject/{{ a.id }}">
+            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+          </form>
+        </div>
+      </div>
+      
+      <p style="color:var(--text);margin-bottom:var(--space-md);font-size:0.95rem">
+        <strong>Issue:</strong> {{ a.description }}
+      </p>
+
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-md)">
+        <span class="stat-label" style="display:block;margin-bottom:var(--space-xs)">Raw CSV Data</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:var(--space-sm);font-size:0.85rem">
+          {% for key, val in a.raw_row.items() %}
+          <div>
+            <span style="color:var(--text-muted);font-weight:500">{{ key }}:</span>
+            <span style="font-family:var(--font-mono);color:var(--text)">{{ val if val else '—' }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3>All caught up!</h3>
+    <p>There are no pending anomalies requiring approval for this session.</p>
+    <br/>
+    <a href="/import/{{ session.id }}/report" class="btn btn-primary">View Final Report</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

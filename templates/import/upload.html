@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Import CSV{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <h1 style="margin-bottom:var(--space-sm)">Import Expenses</h1>
+  <p style="margin-bottom:var(--space-xl)">Upload a CSV file to bulk-import expenses and payments into a group.</p>
+
+  <div class="card">
+    <form method="post" action="/import" enctype="multipart/form-data">
+      <div class="form-group">
+        <label class="form-label" for="group_id">Target Group</label>
+        <select id="group_id" class="form-select" name="group_id" required>
+          {% for group in groups %}
+          <option value="{{ group.id }}">{{ group.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="file">CSV File</label>
+        <input id="file" class="form-input" type="file" name="file" accept=".csv" required />
+      </div>
+      <div style="margin-top:var(--space-sm);padding:var(--space-md);background:var(--surface-2);border-radius:var(--radius);font-size:0.82rem;color:var(--text-muted)">
+        <strong style="color:var(--text)">Expected columns:</strong><br/>
+        <code>date, description, amount, currency, paid_by, split_type, split_with, split_details, notes</code>
+      </div>
+      <div style="margin-top:var(--space-md);display:flex;justify-content:flex-end">
+        <button type="submit" class="btn btn-primary">Upload &amp; Import</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

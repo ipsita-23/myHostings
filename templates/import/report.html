@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Import Report{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 style="margin-bottom:var(--space-sm)">Import Report</h1>
+  <p style="margin-bottom:var(--space-lg)">{{ session.filename }} · imported {{ session.imported_at.strftime('%d %b %Y %H:%M') }}</p>
+
+  <div class="grid-3" style="margin-bottom:var(--space-xl)">
+    <div class="stat-card">
+      <span class="stat-label">Total Rows</span>
+      <span class="stat-value stat-neutral">{{ session.rows_total }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Imported</span>
+      <span class="stat-value stat-positive">{{ session.rows_imported }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Skipped</span>
+      <span class="stat-value stat-negative">{{ session.rows_skipped }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Flagged</span>
+      <span class="stat-value" style="color:var(--warning)">{{ session.rows_flagged }}</span>
+    </div>
+  </div>
+
+  {% if pending_count > 0 %}
+  <div class="alert alert-error" style="margin-bottom:var(--space-lg)">
+    <strong>{{ pending_count }} rows need your approval.</strong>
+    <a href="/import/{{ session.id }}/approve" class="btn btn-primary btn-sm" style="margin-left:var(--space-md)">Review Now →</a>
+  </div>
+  {% endif %}
+
+  <div class="section-header">
+    <h2>Anomaly Log</h2>
+    <span class="badge badge-neutral">{{ anomalies|length }} anomalies</span>
+  </div>
+
+  {% if anomalies %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Row #</th><th>Type</th><th>Description</th><th>Action</th><th>Approval</th></tr></thead>
+      <tbody>
+      {% for a in anomalies %}
+      <tr>
+        <td style="font-family:var(--font-mono);color:var(--text-muted)">{{ a.row_number }}</td>
+        <td><span class="anomaly-{{ a.anomaly_type }}" style="font-weight:600;font-size:0.82rem">{{ a.anomaly_type }}</span></td>
+        <td style="font-size:0.88rem">{{ a.description }}</td>
+        <td><span class="badge badge-neutral" style="font-size:0.75rem">{{ a.action_taken }}</span></td>
+        <td>
+          {% if a.requires_approval %}
+            {% if a.approved is none %}
+            <span class="badge badge-warning">Pending</span>
+            {% elif a.approved %}
+            <span class="badge badge-positive">Approved</span>
+            {% else %}
+            <span class="badge badge-negative">Rejected</span>
+            {% endif %}
+          {% else %}
+          <span style="color:var(--text-muted);font-size:0.82rem">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><h3>No anomalies detected</h3><p>Clean import!</p></div>
+  {% endif %}
+</div>
+{% endblock %}
