@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:var(--space-md)">
+    <a href="/" class="btn btn-ghost btn-sm">← Dashboard</a>
+  </div>
+
+  <div class="section-header">
+    <h1>{{ group.name }}</h1>
+    <div style="display:flex;gap:var(--space-sm)">
+      <a href="/groups/{{ group.id }}/expenses/new" class="btn btn-primary btn-sm">+ Add Expense</a>
+      <a href="/groups/{{ group.id }}/payments/new" class="btn btn-ghost btn-sm">Record Payment</a>
+      <a href="/groups/{{ group.id }}/balances" class="btn btn-ghost btn-sm">View Balances</a>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:var(--space-xl)">
+
+    <!-- Members Section -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Members</h2>
+      </div>
+      <div class="table-wrap" style="margin-bottom:var(--space-md)">
+        <table>
+          <thead><tr><th>Name</th><th>Joined</th><th>Left</th><th></th></tr></thead>
+          <tbody>
+          {% for membership, user in members %}
+          <tr>
+            <td>{{ user.name if user else '—' }}</td>
+            <td style="font-size:0.82rem;color:var(--text-muted)">{{ membership.joined_at }}</td>
+            <td style="font-size:0.82rem;color:var(--text-muted)">{{ membership.left_at or '—' }}</td>
+            <td>
+              {% if not membership.left_at and user.id != current_user.id %}
+              <form method="post" action="/groups/{{ group.id }}/members/{{ user.id }}/remove" style="display:inline">
+                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add member by email -->
+      <form method="post" action="/groups/{{ group.id }}/members">
+        <div style="display:flex;gap:var(--space-sm)">
+          <input class="form-input" type="email" name="email" placeholder="member@email.com" required />
+          <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap">Add Member</button>
+        </div>
+        <input type="hidden" name="joined_at" value="" />
+      </form>
+    </div>
+
+    <!-- Balance snapshot -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Balances</h2>
+        <a href="/groups/{{ group.id }}/balances" class="btn btn-ghost btn-sm">Full view →</a>
+      </div>
+      {% for user_id, bal in balances.items() %}
+      {% set user = users_map.get(user_id) %}
+      {% if user %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:0.9rem">{{ user.name }}</span>
+        {% if bal > 0 %}
+        <span class="badge badge-positive">+₹{{ "%.2f"|format(bal) }}</span>
+        {% elif bal < 0 %}
+        <span class="badge badge-negative">−₹{{ "%.2f"|format(bal|abs) }}</span>
+        {% else %}
+        <span class="badge badge-neutral">₹0.00</span>
+        {% endif %}
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Recent Expenses -->
+  <div class="section-header">
+    <h2>Recent Expenses</h2>
+  </div>
+  {% if recent_expenses %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Description</th><th>Amount</th><th>Currency</th><th>Paid by</th><th>Split</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for exp in recent_expenses %}
+      <tr>
+        <td style="color:var(--text-muted);font-size:0.85rem">{{ exp.date }}</td>
+        <td>{{ exp.description }}</td>
+        <td style="font-family:var(--font-mono)">{{ exp.total_amount }}</td>
+        <td><span class="badge badge-neutral">{{ exp.currency_code }}</span></td>
+        <td style="font-size:0.85rem">{{ users_map.get(exp.paid_by_user_id).name if users_map.get(exp.paid_by_user_id) else '—' }}</td>
+        <td><span class="badge badge-neutral">{{ exp.split_type.value }}</span></td>
+        <td>
+          <a href="/expenses/{{ exp.id }}" class="btn btn-ghost btn-sm">View</a>
+          <form method="post" action="/expenses/{{ exp.id }}/delete" style="display:inline">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this expense?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3>No expenses yet</h3>
+    <p>Add an expense to start tracking.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

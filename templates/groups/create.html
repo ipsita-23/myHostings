@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}New Group{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div style="margin-bottom:var(--space-lg)">
+    <a href="/" class="btn btn-ghost btn-sm">← Back</a>
+  </div>
+  <div class="card">
+    <h1 style="margin-bottom:var(--space-md)">Create a new group</h1>
+    <form method="post" action="/groups">
+      <div class="form-group">
+        <label class="form-label" for="name">Group name</label>
+        <input id="name" class="form-input" type="text" name="name" required placeholder="e.g. Flat Expenses, Road Trip 2026" />
+      </div>
+      <div style="display:flex;gap:var(--space-sm);justify-content:flex-end">
+        <a href="/" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Group</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
