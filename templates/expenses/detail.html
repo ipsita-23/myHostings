@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ expense.description }}{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:var(--space-md)">
+    <a href="/groups/{{ expense.group_id }}" class="btn btn-ghost btn-sm">← Back to group</a>
+  </div>
+
+  <div class="card" style="margin-bottom:var(--space-lg)">
+    <div class="card-header">
+      <div>
+        <h1>{{ expense.description }}</h1>
+        <p style="margin-top:4px;font-size:0.85rem">{{ expense.date }} &nbsp;·&nbsp; Paid by <strong>{{ paid_by_user.name if paid_by_user else '—' }}</strong></p>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:1.8rem;font-weight:700;font-family:var(--font-mono)">
+          {{ expense.currency_code }} {{ expense.total_amount }}
+        </div>
+        <span class="badge badge-neutral" style="margin-top:4px">{{ expense.split_type.value }} split</span>
+      </div>
+    </div>
+    {% if expense.notes %}
+    <p style="margin-top:var(--space-sm);padding-top:var(--space-sm);border-top:1px solid var(--border);font-size:0.88rem">
+      {{ expense.notes }}
+    </p>
+    {% endif %}
+  </div>
+
+  <h2 style="margin-bottom:var(--space-md)">Split Breakdown</h2>
+  <div class="table-wrap" style="margin-bottom:var(--space-lg)">
+    <table>
+      <thead>
+        <tr><th>Member</th><th>Raw Share</th><th>Share (₹ INR)</th><th>Role</th></tr>
+      </thead>
+      <tbody>
+      {% for split in splits %}
+      {% set user = users_map.get(split.user_id) %}
+      <tr>
+        <td>{{ user.name if user else split.user_id }}</td>
+        <td style="font-family:var(--font-mono);color:var(--text-muted)">{{ split.raw_share }}</td>
+        <td style="font-family:var(--font-mono);font-weight:600">₹{{ split.share_amount_inr }}</td>
+        <td>
+          {% if split.user_id == expense.paid_by_user_id %}
+          <span class="badge badge-positive">Payer</span>
+          {% else %}
+          <span class="badge badge-neutral">Owes</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-bottom:var(--space-lg)">
+    <h3 style="margin-bottom:var(--space-sm)">Active members on {{ expense.date }}</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--space-xs)">
+      {% for m in active_on_date %}
+      <span class="badge badge-neutral">{{ m.name }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <form method="post" action="/expenses/{{ expense.id }}/delete">
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Soft-delete this expense?')">Delete Expense</button>
+  </form>
+</div>
+{% endblock %}

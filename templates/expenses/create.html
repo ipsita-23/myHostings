@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Add Expense{% endblock %}
+{% block content %}
+<div class="container-sm">
+  <div style="margin-bottom:var(--space-md)">
+    <a href="/groups/{{ group.id }}" class="btn btn-ghost btn-sm">← {{ group.name }}</a>
+  </div>
+  <div class="card">
+    <h1 style="margin-bottom:var(--space-md)">Add Expense</h1>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="post" action="/groups/{{ group.id }}/expenses">
+      <div class="form-group">
+        <label class="form-label" for="description">Description</label>
+        <input id="description" class="form-input" type="text" name="description" required placeholder="e.g. Grocery run" />
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:var(--space-sm)">
+        <div class="form-group">
+          <label class="form-label" for="total_amount">Amount</label>
+          <input id="total_amount" class="form-input" type="text" name="total_amount" required placeholder="1200.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="currency_code">Currency</label>
+          <select id="currency_code" class="form-select" name="currency_code">
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="date">Date</label>
+        <input id="date" class="form-input" type="date" name="date" required value="{{ today }}" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="paid_by_user_id">Paid by</label>
+        <select id="paid_by_user_id" class="form-select" name="paid_by_user_id">
+          {% for member in members %}
+          <option value="{{ member.id }}" {% if member.id == current_user.id %}selected{% endif %}>{{ member.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="split_type">Split type</label>
+        <select id="split_type" class="form-select" name="split_type">
+          {% for st in split_types %}
+          <option value="{{ st }}">{{ st | capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="notes">Notes (optional)</label>
+        <textarea id="notes" class="form-textarea" name="notes" placeholder="Any extra details..."></textarea>
+      </div>
+      <div style="display:flex;gap:var(--space-sm);justify-content:flex-end">
+        <a href="/groups/{{ group.id }}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Expense</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
