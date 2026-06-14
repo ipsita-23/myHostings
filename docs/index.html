@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Expenses — Live Demo</title>
+  <meta http-equiv="refresh" content="3; url=https://avenue-crimes-panel-declaration.trycloudflare.com">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { background: #1e293b; border-radius: 16px; padding: 48px; max-width: 680px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.4); }
+    .badge { background: #7c3aed; color: white; font-size: 12px; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 24px; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #f1f5f9; }
+    .subtitle { color: #94a3b8; margin-bottom: 8px; font-size: 15px; }
+    .redirecting { color: #7c3aed; font-size: 13px; margin-bottom: 28px; }
+    .btn { display: block; background: #7c3aed; color: white; text-decoration: none; padding: 16px 24px; border-radius: 10px; font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 32px; }
+    .btn:hover { background: #6d28d9; }
+    .section { background: #0f172a; border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+    .section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #7c3aed; margin-bottom: 14px; }
+    .section p { color: #94a3b8; font-size: 14px; line-height: 1.8; }
+    .section p strong { color: #e2e8f0; }
+    .tech { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .tech span { background: #1e293b; border: 1px solid #334155; padding: 4px 10px; border-radius: 6px; font-size: 12px; color: #cbd5e1; }
+    .arch-diagram { font-family: monospace; font-size: 12px; color: #a78bfa; background: #0f172a; padding: 16px; border-radius: 8px; margin-top: 12px; line-height: 2; }
+    .note { border-left: 3px solid #7c3aed; padding-left: 16px; color: #64748b; font-size: 13px; line-height: 1.6; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Spreetail Internship Assignment</div>
+    <h1>Shared Expenses</h1>
+    <p class="subtitle">A smart flatmate expense tracker with CSV import, anomaly detection, and intelligent settlements</p>
+    <p class="redirecting">⟳ Redirecting to live demo in 3 seconds...</p>
+
+    <a href="https://avenue-crimes-panel-declaration.trycloudflare.com" class="btn" target="_blank">🚀 Open Live Demo</a>
+
+    <div class="section">
+      <h3>Why This Architecture</h3>
+      <p>
+        Rather than spinning up a paid cloud server, this application runs on an
+        <strong>Android device running Termux</strong> — a full Linux environment on a phone.
+        This was a deliberate decision rooted in understanding how large language models
+        like Claude actually work.
+        <br><br>
+        Claude operates as a <strong>stateless inference engine</strong> — each request is
+        self-contained, context is passed in the prompt, and no persistent state lives inside
+        the model itself. The same philosophy applies here: the backend is stateless
+        (Express + JWT), all state lives in MariaDB, and the frontend is a pure static build.
+        This means the entire stack can run on any compute — including a phone.
+        <br><br>
+        <strong>Cloudflare Tunnel</strong> exposes the local server without port forwarding
+        or a static IP — the same pattern used in edge deployment scenarios where compute
+        is close to data but not publicly addressable.
+        <br><br>
+        <strong>This GitHub Pages URL</strong> acts as a stable entry point — a thin
+        indirection layer decoupling the permanent submission URL from the dynamic tunnel
+        beneath it. When the tunnel restarts, this page updates automatically via the
+        GitHub API. This mirrors <strong>DNS and service discovery</strong> in production:
+        stable names pointing to dynamic infrastructure.
+      </p>
+      <div class="arch-diagram">
+        Browser → GitHub Pages (stable) → Cloudflare Tunnel (dynamic)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nginx → Express API + React Frontend<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MariaDB (persistent state)
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Tech Stack</h3>
+      <div class="tech">
+        <span>Node.js</span><span>Express</span><span>MariaDB</span>
+        <span>React</span><span>Vite</span><span>nginx</span>
+        <span>PM2</span><span>Cloudflare Tunnel</span><span>Termux</span>
+        <span>GitHub Pages</span><span>GitHub API</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Key Features</h3>
+      <p>
+        Smart CSV importer with <strong>19 anomaly categories</strong> ·
+        Balance engine with <strong>date-gated membership</strong> ·
+        Greedy <strong>minimal transfer settlement</strong> algorithm ·
+        Guest account handling · Multi-currency FX conversion
+      </p>
+    </div>
+
+    <div class="note">
+      This page auto-updates via GitHub API whenever the tunnel restarts.
+      The indirection layer is the point — stable names over dynamic infrastructure.
+    </div>
+  </div>
+</body>
+</html>
