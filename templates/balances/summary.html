@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Balances — {{ group.name }}{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:var(--space-md)">
+    <a href="/groups/{{ group.id }}" class="btn btn-ghost btn-sm">← {{ group.name }}</a>
+  </div>
+  <h1 style="margin-bottom:var(--space-xl)">Balances — {{ group.name }}</h1>
+
+  <!-- Simplified Settlements -->
+  <div class="section-header">
+    <h2>Simplified Settlements</h2>
+    <a href="/groups/{{ group.id }}/payments/new" class="btn btn-primary btn-sm">Record Payment</a>
+  </div>
+  {% if settlements %}
+  <div class="table-wrap" style="margin-bottom:var(--space-xl)">
+    <table>
+      <thead><tr><th>From</th><th></th><th>To</th><th>Amount (₹)</th></tr></thead>
+      <tbody>
+      {% for txn in settlements %}
+      {% set from_user = users_map.get(txn['from']) %}
+      {% set to_user   = users_map.get(txn['to']) %}
+      <tr>
+        <td>{{ from_user.name if from_user else txn['from'] }}</td>
+        <td style="color:var(--text-muted)">→</td>
+        <td>{{ to_user.name if to_user else txn['to'] }}</td>
+        <td style="font-family:var(--font-mono);font-weight:600">₹{{ "%.2f"|format(txn['amount']) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" style="margin-bottom:var(--space-xl)">
+    <h3>All settled up! 🎉</h3>
+    <p>No outstanding balances in this group.</p>
+  </div>
+  {% endif %}
+
+  <!-- Individual Balances -->
+  <div class="section-header">
+    <h2>Individual Balances</h2>
+  </div>
+  <div class="grid-3">
+    {% for user_id, bal in raw_balances.items() %}
+    {% set user = users_map.get(user_id) %}
+    {% if user %}
+    <a href="/groups/{{ group.id }}/balances/{{ user_id }}" style="text-decoration:none">
+      <div class="stat-card" style="cursor:pointer">
+        <span class="stat-label">{{ user.name }}</span>
+        <span class="stat-value {% if bal > 0 %}stat-positive{% elif bal < 0 %}stat-negative{% else %}stat-neutral{% endif %}">
+          {% if bal >= 0 %}+{% endif %}₹{{ "%.2f"|format(bal) }}
+        </span>
+        <span style="font-size:0.8rem;color:var(--text-muted)">
+          {% if bal > 0 %}owed to them{% elif bal < 0 %}they owe{% else %}settled{% endif %}
+        </span>
+      </div>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ target_user.name }}'s Balance{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:var(--space-md)">
+    <a href="/groups/{{ group.id }}/balances" class="btn btn-ghost btn-sm">← Balances</a>
+  </div>
+  <h1 style="margin-bottom:4px">{{ target_user.name }}</h1>
+  <p style="margin-bottom:var(--space-xl)">Expense breakdown in {{ group.name }}</p>
+
+  {% if breakdown %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Description</th><th>Their Share (₹)</th><th>Role</th><th>Net Effect (₹)</th><th>Running Total (₹)</th></tr>
+      </thead>
+      <tbody>
+      {% for item in breakdown %}
+      <tr>
+        <td style="color:var(--text-muted);font-size:0.83rem">{{ item.expense.date }}</td>
+        <td>{{ item.expense.description }}</td>
+        <td style="font-family:var(--font-mono)">₹{{ "%.2f"|format(item.share_amount_inr) }}</td>
+        <td>
+          {% if item.is_payer %}
+          <span class="badge badge-positive">Paid</span>
+          {% else %}
+          <span class="badge badge-negative">Owes</span>
+          {% endif %}
+        </td>
+        <td style="font-family:var(--font-mono);{% if item.net_effect >= 0 %}color:var(--success){% else %}color:var(--error){% endif %}">
+          {% if item.net_effect >= 0 %}+{% endif %}₹{{ "%.2f"|format(item.net_effect) }}
+        </td>
+        <td style="font-family:var(--font-mono);font-weight:600;{% if item.running_total >= 0 %}color:var(--success){% else %}color:var(--error){% endif %}">
+          {% if item.running_total >= 0 %}+{% endif %}₹{{ "%.2f"|format(item.running_total) }}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3>No expenses affect {{ target_user.name }}</h3>
+    <p>Add expenses to see the breakdown here.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
